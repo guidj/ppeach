@@ -4,18 +4,18 @@ PPeach
 Main module and cli for using PPeach
 """
 
-
 import argparse
 import inspect
 import os
 import sys
 import importlib
 import json
+import re
 
 import luigi.task
 
 from ppeach import parser
-from ppeach import io
+from ppeach import mio
 from ppeach import util
 from ppeach import logger
 
@@ -24,12 +24,19 @@ def classes_in_module(module):
     md = module.__dict__
     return [
         attr for name, attr in md.iteritems() if (
-            inspect.isclass(attr) and attr.__module__ == module.__name__
+                inspect.isclass(attr) and attr.__module__ == module.__name__
         )
     ]
 
 
-def main(basepath, env, target_methods, target_properties, to_json):
+def should_exclude(name, exclusion_patterns):
+    for pattern in exclusion_patterns:
+        if re.match(pattern, name):
+            return True
+    return False
+
+
+def main(basepath, env, target_methods, target_properties, to_json, exclusion_patterns):
     sys.path.append(os.path.abspath(basepath))
     sys.path.append(os.path.dirname(os.path.abspath(basepath)))
 
@@ -49,6 +56,11 @@ def main(basepath, env, target_methods, target_properties, to_json):
                 continue
 
             mpath = os.path.join(dirname, fname)
+
+            if should_exclude(mpath, exclusion_patterns):
+                logger.debug("Excluding %s" % mpath)
+                continue
+
             mname = mpath.replace(os.sep, '.').rstrip('.py').lstrip('.')
             modules[mname] = mpath
 
@@ -84,7 +96,7 @@ def main(basepath, env, target_methods, target_properties, to_json):
     if tasks and to_json:
         with open(to_json, 'w') as fp:
             for task in tasks:
-                json.dump(io.to_json(task), fp)
+                json.dump(mio.to_json(task), fp)
                 fp.write('\n')
     elif tasks:
         for task in tasks:
@@ -107,6 +119,8 @@ if __name__ == '__main__':
                             help="Environment variables that your luigi modules may be expecting when loaded")
     arg_parser.add_argument('--to-json', type=str, default=None,
                             help="Path to a file to save output as json")
+    arg_parser.add_argument('--exclude', type=str, nargs='*', default=[],
+                            help="Patterns of package names to ignore")
 
     args = arg_parser.parse_args()
 
@@ -117,4 +131,4 @@ if __name__ == '__main__':
 
     main(basepath=args.pkg_path, env=environment,
          target_methods=args.target_method, target_properties=args.target_property,
-         to_json=args.to_json)
+         to_json=args.to_json, exclusion_patterns=args.exclude)

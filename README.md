@@ -21,6 +21,7 @@ usage: main.py [-h] --pkg-path PKG_PATH
                [--target-method [TARGET_METHOD [TARGET_METHOD ...]]]
                [--target-property [TARGET_PROPERTY [TARGET_PROPERTY ...]]]
                [--env [ENV [ENV ...]]] [--to-json TO_JSON]
+               [--exclude [EXCLUDE [EXCLUDE ...]]]
 
 Extract luigi tasks, their dependencies and targets
 
@@ -38,4 +39,6 @@ optional arguments:
                         Environment variables that your luigi modules may be
                         expecting when loaded
   --to-json TO_JSON     Path to a file to save output as json
+  --exclude [EXCLUDE [EXCLUDE ...]]
+                        Patterns of package names to ignore
 ```

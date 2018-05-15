@@ -5,6 +5,8 @@ This module contains logic related to extracting task and output dependencies fr
 """
 
 import datetime
+import types
+
 import luigi
 
 from domain import Dependency
@@ -74,7 +76,14 @@ def generate_params(cls):
     :param cls: A class of type `luigi.Task`
     :return: A dictionary with the name -> value for each parameter
     """
-    task_family = cls.get_task_family()
+
+    if hasattr(cls, 'get_task_family'):
+        task_family = cls.get_task_family()
+    elif hasattr(cls, 'task_family'):
+        task_family = cls.task_family
+    else:
+        raise RuntimeError('Class %s has no (get_task_family or task_family) attribute' % cls)
+
     values = {}
 
     for param_name, param_obj in cls.get_params():
@@ -125,7 +134,7 @@ def _extract_dependencies(deps):
     if not deps:
         return None
 
-    if isinstance(deps, (list, tuple)):
+    if isinstance(deps, (list, tuple, types.GeneratorType)):
 
         dependencies = []
         for dep in deps:

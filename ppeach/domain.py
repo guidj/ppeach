@@ -6,7 +6,6 @@ This module contains domain classes
 
 
 class Param(object):
-
     def __init__(self, name, type):
         self.name = name
         self.type = type
@@ -17,7 +16,6 @@ class Param(object):
 
 
 class Target(object):
-
     def __init__(self, type, fields=None):
         self.type = type
         self.fields = fields
@@ -28,7 +26,6 @@ class Target(object):
 
 
 class Dependency(object):
-
     def __init__(self, name, params):
         self.name = name
         self.params = params
@@ -39,7 +36,6 @@ class Dependency(object):
 
 
 class Task(object):
-
     def __init__(self, name, params, targets, dependencies=None):
         self.name = name
         self.params = params

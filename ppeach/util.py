@@ -17,7 +17,6 @@ def parse_environment(env_args):
     errors = []
 
     for env_arg in env_args:
-
         if '=' not in env_arg:
             errors.append(
                 'Error parsing `{}`. Each environment variable be formatted as key=value'.format(
@@ -26,7 +25,5 @@ def parse_environment(env_args):
             )
         else:
             k, v = env_arg.split('=')
-
             environment[k] = v
-
     return environment, errors

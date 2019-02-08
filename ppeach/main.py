@@ -39,7 +39,6 @@ def should_exclude(name, exclusion_patterns):
 def main(basepath, env, target_methods, target_properties, to_json, exclusion_patterns):
     sys.path.append(os.path.abspath(basepath))
     sys.path.append(os.path.dirname(os.path.abspath(basepath)))
-
     for k, v in env.iteritems():
         os.environ[k] = v
 
@@ -49,35 +48,24 @@ def main(basepath, env, target_methods, target_properties, to_json, exclusion_pa
 
     for dirname, subdirs, files in os.walk(basepath):
         logger.info('Found directory: %s' % dirname)
-
         for fname in files:
-
             if not fname.endswith('.py') or '__init__' in fname:
                 continue
-
             mpath = os.path.join(dirname, fname)
-
             if should_exclude(mpath, exclusion_patterns):
                 logger.debug("Excluding %s" % mpath)
                 continue
-
             mname = mpath.replace(os.sep, '.').rstrip('.py').lstrip('.')
             modules[mname] = mpath
 
     logger.info('Found the following modules: \n\t%s' % '\n\t'.join(modules.values()))
 
     for mname, mpath in modules.iteritems():
-
         name = os.path.splitext(os.path.basename(mpath))[0]
-
         try:
-
             module = importlib.import_module(name)
-
             classes = classes_in_module(module)
-
             for cls in classes:
-
                 if issubclass(cls, (luigi.Task, luigi.task.Task)):
                     params = parser.generate_params(cls)
                     if params:
@@ -85,7 +73,6 @@ def main(basepath, env, target_methods, target_properties, to_json, exclusion_pa
                         peach_task = parser.parse_task(e,
                                                        target_methods=target_methods,
                                                        target_properties=target_properties)
-
                         tasks.append(peach_task)
 
         except ImportError as err:
